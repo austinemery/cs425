@@ -132,7 +132,7 @@
   // Type: mobileye_560_660_msgs/TsrVisionOnly
 
 #include <iostream>
-
+#include <string>
 #include "mvp/engine.h"
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -142,8 +142,13 @@
 /**
  * This tutorial demonstrates simple receipt of messages over the ROS system.
  */
+
+// Start an engine and run it then cleanup after
+Engine *engine = new Engine("MVP Demo", 1600, 800);
+
 void laneParse(const mobileye_560_660_msgs::Lane::ConstPtr& passedLane)
 {
+  // char str[200];
   ROS_INFO("=======LANE=======\nLane Curvature: [%f]\nLane Heading: [%f]\nConstruction Area? [%d]\nPitch Angle: [%f]\nYaw Angle: [%f]\nRight_ldw_available? [%d]\nLeft_ldw_available? [%d] |" 
         , passedLane->lane_curvature 
         , passedLane->lane_heading 
@@ -152,16 +157,21 @@ void laneParse(const mobileye_560_660_msgs::Lane::ConstPtr& passedLane)
         , passedLane->yaw_angle
         , passedLane->right_ldw_availability
         , passedLane->left_ldw_availability);
+  // string stringToPass(str);
+  // engine->PopulateBuffer(stringToPass);
 }
 
 void obstacleParse(const mobileye_560_660_msgs::ObstacleData::ConstPtr& passedObst)
 {
+  // char str[200];
   ROS_INFO("=======OBST DATA=======\nposition_x: [%f]\nposition_y: [%f]\nRelative velocity x: [%f]\nLength: [%f]\nWidth: [%f]" 
         , passedObst->obstacle_pos_x 
         , passedObst->obstacle_pos_y
         , passedObst->obstacle_rel_vel_x
         , passedObst->obstacle_length
         , passedObst->obstacle_width);
+  // string stringToPass(str);
+  // engine->PopulateBuffer(stringToPass);
 }
 
 int main(int argc, char **argv)
@@ -176,8 +186,7 @@ int main(int argc, char **argv)
    * You must call one of the versions of ros::init() before using any other
    * part of the ROS system.
    */
-  ros::init(argc, argv, "listener");
-
+  ros::init(argc, argv, "mvp");
   /**
    * NodeHandle is the main access point to communications with the ROS system.
    * The first NodeHandle constructed will fully initialize this node, and the last
@@ -185,6 +194,14 @@ int main(int argc, char **argv)
    */
   ros::NodeHandle lane;
   ros::NodeHandle obstacle;
+
+  /**
+   * ros::spin() will enter a loop, pumping callbacks.  With this version, all
+   * callbacks will be called from within this thread (the main one).  ros::spin()
+   * will exit when Ctrl-C is pressed, or the node is shutdown by the master.
+   */
+  // ros::spinOnce();
+
   /**
    * The subscribe() call is how you tell ROS that you want to receive messages
    * on a given topic.  This invokes a call to the ROS
@@ -202,16 +219,8 @@ int main(int argc, char **argv)
    */
   ros::Subscriber sub_lane = lane.subscribe("/sensors/mobileye/parsed_tx/lane", 1000, laneParse);
   ros::Subscriber sub_obstacle = obstacle.subscribe("/sensors/mobileye/parsed_tx/obstacle_data", 1000, obstacleParse);
-  /**
-   * ros::spin() will enter a loop, pumping callbacks.  With this version, all
-   * callbacks will be called from within this thread (the main one).  ros::spin()
-   * will exit when Ctrl-C is pressed, or the node is shutdown by the master.
-   */
-  ros::spin();
 
-  // Start an engine and run it then cleanup after
-  Engine *engine = new Engine("MVP Demo", 1600, 800);
-  if(!engine->Initialize())
+  if(!engine->Initialize(argc, argv))
   {
     printf("The engine failed to start.\n");
     delete engine;

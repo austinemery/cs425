@@ -24,7 +24,7 @@ Engine::~Engine()
   m_graphics = NULL;
 }
 
-bool Engine::Initialize()
+bool Engine::Initialize(int argc, char *argv[])
 {
   // Start a window
   m_window = new Window();
@@ -68,6 +68,8 @@ void Engine::Run()
     m_graphics->Update(m_DT);
     m_graphics->Render();
 
+    ros::spinOnce();
+
     //ImGUI menu
     m_window->RunMenu();
 
@@ -107,4 +109,9 @@ long long Engine::GetCurrentTimeMillis()
   gettimeofday(&t, NULL);
   long long ret = t.tv_sec * 1000 + t.tv_usec / 1000;
   return ret;
+}
+
+void Engine::PopulateBuffer(string str)
+{
+  buffer.push(str);
 }

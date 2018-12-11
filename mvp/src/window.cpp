@@ -80,7 +80,7 @@ void Window::RunMenu()
   ImGui_ImplSdlGL3_NewFrame(gWindow);
 
   //ImGui::Begin("MobileEye Visualization Program (MVP)", 1);
-  ImGui::Checkbox("Test CheckBox", &testBool);
+  ImGui::Text("Test");
   
   // Rendering
   glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
